@@ -6,16 +6,19 @@ use App\Entity\Author;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-/**
- * @method Author|null find($id, $lockMode = null, $lockVersion = null)
- * @method Author|null findBy(array $criteria, ?array $orderBy = null, $limit = null, $offset = null)
- * @method Author findOneBy(array $criteria, ?array $orderBy = null)
- * @method Author findAll()
- */
 class AuthorRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
-    {
+    public function __construct(ManagerRegistry $registry) {
         parent::__construct($registry, Author::class);
+    }
+
+    public function findAll() : array
+    {
+        return parent::findAll();
+    }
+
+    public function findOne(int $id) : Author
+    {
+        return parent::findOneBy(['id' => $id]);
     }
 }
