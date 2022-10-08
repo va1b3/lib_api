@@ -4,15 +4,11 @@ namespace App\Repository;
 
 use App\Entity\Book;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 
 class BookRepository extends ServiceEntityRepository
 {
-    public function __construct(
-        ManagerRegistry $registry,
-        private EntityManagerInterface $entityManager
-    ) {
+    public function __construct(ManagerRegistry $registry) {
         parent::__construct($registry, Book::class);
     }
 
@@ -21,50 +17,13 @@ class BookRepository extends ServiceEntityRepository
         return parent::findAll();
     }
 
-    public function findOne(int $id) : Book
+    public function findOneBy(array $criteria, ?array $orderBy = null)
     {
-        return parent::findOneBy(['id' => $id]);
+        return parent::findOneBy($criteria, $orderBy);
     }
 
-    /**
-     * @param Book $book
-     * @return Book
-     * @throws \Doctrine\ORM\Exception\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
-     */
-    public function save(Book $book) : Book
+    public function isExistBy(array $criteria) : bool
     {
-        $this->entityManager->persist($book);
-        $this->entityManager->flush();
-
-        return $book;
-    }
-
-    /**
-     * @param Book $book
-     * @return Book
-     * @throws \Doctrine\ORM\Exception\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
-     */
-    public function remove(Book $book) : Book
-    {
-        $this->entityManager->remove($this->entityManager->merge($book));
-        $this->entityManager->flush();
-
-        return $book;
-    }
-
-    /**
-     * @param Book $book
-     * @return Book
-     * @throws \Doctrine\ORM\Exception\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
-     */
-    public function update(Book $book) : Book
-    {
-        $this->entityManager->merge($book);
-        $this->entityManager->flush();
-
-        return $book;
+        return null !== parent::findOneBy($criteria);
     }
 }

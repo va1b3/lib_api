@@ -17,8 +17,13 @@ class AuthorRepository extends ServiceEntityRepository
         return parent::findAll();
     }
 
-    public function findOne(int $id) : Author
+    public function findOneBy(array $criteria, ?array $orderBy = null)
     {
-        return parent::findOneBy(['id' => $id]);
+        return parent::findOneBy($criteria, $orderBy);
+    }
+
+    public function isExistBy(array $criteria) : bool
+    {
+        return null !== parent::findOneBy($criteria);
     }
 }
