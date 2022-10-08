@@ -21,7 +21,8 @@ class Book
     /**
      * @var Collection<Author>
      */
-    #[ORM\ManyToMany(targetEntity: Author::class)]
+    #[ORM\ManyToMany(targetEntity: Author::class, inversedBy: "books")]
+    #[ORM\JoinTable(name: "books_authors")]
     private Collection $authors;
 
     #[ORM\Column(type: "string")]
@@ -43,14 +44,21 @@ class Book
         return $this->id;
     }
 
+    public function setId(int $id): void
+    {
+        $this->id = $id;
+    }
+
     public function getTitle(): string
     {
         return $this->title;
     }
 
-    public function setTitle($title): void
+    public function setTitle($title): self
     {
         $this->title = $title;
+
+        return $this;
     }
 
     /**
@@ -63,10 +71,14 @@ class Book
 
     /**
      * @param Collection<Author> $authors
+     *
+     * @return $this
      */
-    public function setAuthors(Collection $authors): void
+    public function setAuthors(Collection $authors): self
     {
         $this->authors = $authors;
+
+        return $this;
     }
 
     public function getDescription(): string
@@ -74,9 +86,11 @@ class Book
         return $this->description;
     }
 
-    public function setDescription($description): void
+    public function setDescription($description): self
     {
         $this->description = $description;
+
+        return $this;
     }
 
     public function getYear(): int
@@ -84,9 +98,11 @@ class Book
         return $this->year;
     }
 
-    public function setYear($year): void
+    public function setYear($year): self
     {
         $this->year = $year;
+
+        return $this;
     }
 
     public function getImage(): string
@@ -94,8 +110,10 @@ class Book
         return $this->image;
     }
 
-    public function setImage($image): void
+    public function setImage($image): self
     {
         $this->image = $image;
+
+        return $this;
     }
 }

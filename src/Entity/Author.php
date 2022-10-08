@@ -21,11 +21,11 @@ class Author
     /**
      * @var Collection<Book>
      */
-    #[ORM\ManyToMany(targetEntity: Book::class)]
+    #[ORM\ManyToMany(targetEntity: Book::class, mappedBy: "authors")]
     private Collection $books;
 
     #[ORM\Column(type: "integer")]
-    private int $books_number;
+    private int $booksNumber;
 
     public function __construct()
     {
@@ -37,14 +37,21 @@ class Author
         return $this->id;
     }
 
+    public function setId(int $id): void
+    {
+        $this->id = $id;
+    }
+
     public function getName(): string
     {
         return $this->name;
     }
 
-    public function setName(string $name): void
+    public function setName(string $name): self
     {
         $this->name = $name;
+
+        return $this;
     }
 
     /**
@@ -57,19 +64,25 @@ class Author
 
     /**
      * @param Collection<Book> $books
+     *
+     * @return $this
      */
-    public function setBooks(Collection $books): void
+    public function setBooks(Collection $books): self
     {
         $this->books = $books;
+
+        return $this;
     }
 
     public function getBooksNumber(): int
     {
-        return $this->books_number;
+        return $this->booksNumber;
     }
 
-    public function setBooksNumber(int $books_number): void
+    public function setBooksNumber(int $booksNumber): self
     {
-        $this->books_number = $books_number;
+        $this->booksNumber = $booksNumber;
+
+        return $this;
     }
 }
