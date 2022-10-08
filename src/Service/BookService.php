@@ -10,24 +10,25 @@ use App\Repository\AuthorRepository;
 use App\Repository\BookRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 
 class BookService
 {
     public function __construct(
-        private BookRepository $bookRepository,
-        private AuthorRepository $authorRepository,
-        private EntityManagerInterface $entityManager
+        private readonly BookRepository $bookRepository,
+        private readonly AuthorRepository $authorRepository,
+        private readonly EntityManagerInterface $entityManager
     ) {
     }
 
-    public function add(array $data) : array
+    public function add(array $data): array
     {
         try {
-            $title = $data['title'];
-            $authors = $data['authors'];
+            $title       = $data['title'];
+            $authors     = $data['authors'];
             $description = $data['description'];
-            $year = $data['year'];
-        } catch (\Exception $exception) {
+            $year        = $data['year'];
+        } catch (Exception $exception) {
             return ['success' => false, 'error' => $exception->getMessage()];
         }
 
@@ -41,46 +42,18 @@ class BookService
             ->setYear($year)
             ->setImage(($data['image']) ?? '');
 
-        $authorsCollection = new ArrayCollection();
-
-        foreach ($authors as $author) {
-            if (!$this->authorRepository->isExistBy(['name' => $author])) {
-                $newAuthor = (new Author())
-                    ->setName($author)
-                    ->setBooksNumber(1);
-
-                $authorsCollection->add($newAuthor);
-                $this->entityManager->persist($newAuthor);
-            }
-        }
-
-        $book->setAuthors($authorsCollection);
+        $book->setAuthors($this->updateBookAuthors($authors));
         $this->entityManager->persist($book);
         $this->entityManager->flush();
 
         return ['success' => true];
     }
 
-    public function update(array $data) : array
+    private function updateBookAuthors(array $authors): ArrayCollection
     {
-        try {
-            $id = $data['id'];
-            $title = $data['title'];
-            $authors = $data['authors'];
-            $description = $data['description'];
-            $year = $data['year'];
-        } catch (\Exception $exception) {
-            return ['success' => false, 'error' => $exception->getMessage()];
-        }
-
-        if (!$this->bookRepository->isExistBy(['id' => $id])) {
-            return ['success' => false, 'error' => 'book doesn\'t exist'];
-        }
-
-        $book = $this->bookRepository->findOneBy(['id' => $id]);
         $authorsCollection = new ArrayCollection();
         foreach ($authors as $author) {
-            if (!$this->authorRepository->isExistBy(['name' => $author])) {
+            if ( ! $this->authorRepository->isExistBy(['name' => $author])) {
                 $newAuthor = (new Author())
                     ->setName($author)
                     ->setBooksNumber(1);
@@ -93,8 +66,29 @@ class BookService
             $this->entityManager->persist($newAuthor);
         }
 
+        return $authorsCollection;
+    }
+
+    public function update(array $data): array
+    {
+        try {
+            $id          = $data['id'];
+            $title       = $data['title'];
+            $authors     = $data['authors'];
+            $description = $data['description'];
+            $year        = $data['year'];
+        } catch (Exception $exception) {
+            return ['success' => false, 'error' => $exception->getMessage()];
+        }
+
+        if ( ! $this->bookRepository->isExistBy(['id' => $id])) {
+            return ['success' => false, 'error' => 'book doesn\'t exist'];
+        }
+
+        $book = $this->bookRepository->findOneBy(['id' => $id]);
+
         $book->setTitle($title)
-             ->setAuthors($authorsCollection)
+             ->setAuthors($this->updateBookAuthors($authors))
              ->setDescription($description)
              ->setYear($year)
              ->setImage($data['image'] ?? '');
@@ -102,12 +96,12 @@ class BookService
         $this->entityManager->persist($book);
         $this->entityManager->flush();
 
-        return ["success" => true];
+        return ['success' => true];
     }
 
-    public function delete(int $id) : array
+    public function delete(int $id): array
     {
-        if (!$this->bookRepository->isExistBy(['id' => $id])) {
+        if ( ! $this->bookRepository->isExistBy(['id' => $id])) {
             return ['success' => false, 'error' => 'book doesn\'t exist'];
         }
 
@@ -115,26 +109,117 @@ class BookService
         $this->entityManager->remove($this->entityManager->merge($book));
         $this->entityManager->flush();
 
-        return ["success" => true];
+        return ['success' => true];
     }
 
-    public function getBook(): BookItemResponse
+    public function getBook(int $id): array
     {
-        // output
+        if ( ! $this->bookRepository->isExistBy(['id' => $id])) {
+            return ['success' => false, 'error' => 'book doesn\'t exist'];
+        }
+
+        $book    = $this->bookRepository->findOneBy(['id' => $id]);
+        $authors = array();
+        foreach ($book->getAuthors() as $author) {
+            $authors[] = [
+                'id'   => $author->getId(),
+                'name' => $author->getName()
+            ];
+        }
+
+        return (new BookItemResponse(
+            $book->getId(),
+            $book->getTitle(),
+            $authors,
+            $book->getDescription(),
+            $book->getYear(),
+            $book->getImage()))->serialize();
     }
 
-    public function getListBook($authors = null, $year = null): BookListResponse
-    {
-        // output
+    public function getListBook(
+        ?int $fromAuthors,
+        ?int $toAuthors,
+        ?int $fromYear,
+        ?int $toYear
+    ): array {
+        $books      = $this->bookRepository->findAll();
+        $booksArray = array();
+        foreach ($books as $book) {
+            if ($book->getAuthors()->count() >= $fromAuthors
+                and $book->getAuthors()->count() <= ($toAuthors ??
+                                                     $book->getAuthors()
+                                                          ->count())
+                    and $book->getYear() >= $fromYear
+                        and $book->getYear() <= ($toYear ?? $book->getYear())
+            ) {
+                $authorsArray = array();
+                foreach ($book->getAuthors() as $author) {
+                    $authorsArray[] = [
+                        'id'   => $author->getID(),
+                        'name' => $author->getName()
+                    ];
+                }
+                $booksArray[] = (new BookItemResponse(
+                    $book->getId(),
+                    $book->getTitle(),
+                    $authorsArray,
+                    $book->getDescription(),
+                    $book->getYear(),
+                    $book->getImage()))->serialize();
+            }
+        }
+
+        return (new BookListResponse($booksArray))->serialize();
     }
 
-    public function getListBookAuthorsFilterSql(): BookItemResponse
+    public function getListBookAuthorsFilterDqb(): array
     {
-        // output
+        $books      = $this->bookRepository->findMoreTwoAuthorsDqb();
+        $booksArray = array();
+        foreach ($books as $book) {
+            $book         = $book[0];
+            $authorsArray = array();
+            foreach ($book->getAuthors() as $author) {
+                $authorsArray[] = [
+                    'id'   => $author->getID(),
+                    'name' => $author->getName()
+                ];
+            }
+            $booksArray[] = (new BookItemResponse(
+                $book->getId(),
+                $book->getTitle(),
+                $authorsArray,
+                $book->getDescription(),
+                $book->getYear(),
+                $book->getImage()))->serialize();
+        }
+
+        return (new BookListResponse($booksArray))->serialize();
     }
 
-    public function getListBookAuthorsFilterDqb(): BookItemResponse
+    public function getListBookAuthorsFilterSql(): array
     {
-        // output
+        $books      = $this->bookRepository->findMoreTwoAuthorsSql();
+        $booksArray = array();
+        foreach ($books as $book) {
+            $authorsArray = array();
+            $authorsIds   = explode(',', $book['author_ids']);
+            $authorsNames = explode(',', $book['author_names']);
+            for ($i = 0; $i < $book['author_count']; $i++) {
+                $authorsArray[] = [
+                    'id'   => $authorsIds[$i],
+                    'name' => $authorsNames[$i]
+                ];
+            }
+            $booksArray[] = (new BookItemResponse(
+                $book['id'],
+                $book['title'],
+                $authorsArray,
+                $book['description'],
+                $book['year'],
+                $book['image']))->serialize();
+        }
+
+        return (new BookListResponse($booksArray))->serialize();
     }
 }
