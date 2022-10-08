@@ -8,22 +8,23 @@ use Doctrine\Persistence\ManagerRegistry;
 
 class AuthorRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry) {
+    public function __construct(ManagerRegistry $registry)
+    {
         parent::__construct($registry, Author::class);
     }
 
-    public function findAll() : array
+    public function findAll(): array
     {
         return parent::findAll();
+    }
+
+    public function isExistBy(array $criteria): bool
+    {
+        return null !== parent::findOneBy($criteria);
     }
 
     public function findOneBy(array $criteria, ?array $orderBy = null)
     {
         return parent::findOneBy($criteria, $orderBy);
-    }
-
-    public function isExistBy(array $criteria) : bool
-    {
-        return null !== parent::findOneBy($criteria);
     }
 }
