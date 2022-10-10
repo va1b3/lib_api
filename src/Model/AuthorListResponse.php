@@ -4,6 +4,9 @@ namespace App\Model;
 
 class AuthorListResponse
 {
+    /**
+     * @var AuthorItemResponse[]
+     */
     private array $items;
 
     public function __construct(array $items)
@@ -20,7 +23,7 @@ class AuthorListResponse
     {
         $serialized = array();
         foreach ($this->items as $item) {
-            $serialized['data'][] = $item;
+            $serialized['items'][] = $item;
         }
 
         return $serialized;

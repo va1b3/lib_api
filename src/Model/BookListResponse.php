@@ -4,6 +4,9 @@ namespace App\Model;
 
 class BookListResponse
 {
+    /**
+     * @var BookItemResponse[]
+     */
     private array $items;
 
     public function __construct(array $items)
@@ -20,7 +23,7 @@ class BookListResponse
     {
         $serialized = array();
         foreach ($this->items as $item) {
-            $serialized['data'][] = $item;
+            $serialized['items'][] = $item;
         }
 
         return $serialized;

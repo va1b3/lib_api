@@ -6,6 +6,9 @@ class AuthorItemResponse
 {
     private int $id;
     private string $name;
+    /**
+     * @var BookItem[]
+     */
     private array $books;
     private int $booksCount;
 

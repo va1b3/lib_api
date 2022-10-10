@@ -6,6 +6,9 @@ class BookItemResponse
 {
     private int $id;
     private string $title;
+    /**
+     * @var AuthorItem[]
+     */
     private array $authors;
     private string $description;
     private int $year;
