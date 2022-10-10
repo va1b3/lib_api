@@ -37,7 +37,7 @@ class BookRepository extends ServiceEntityRepository
                     ->getQuery()
                     ->getResult();
     }
-
+    
     /**
      * @return mixed[][]
      * @throws Exception
@@ -48,8 +48,8 @@ class BookRepository extends ServiceEntityRepository
         $sql  = "SELECT
                     *,
                     GROUP_CONCAT(a.name) AS author_names,
-                    GROUP_CONCAT(a.id) as author_ids,
-                    COUNT(a.id) as author_count
+                    GROUP_CONCAT(a.id) AS author_ids,
+                    COUNT(a.id) AS author_count
                 FROM lib_api.book b
                 LEFT JOIN lib_api.books_authors ab
                     ON b.id = ab.book_id
