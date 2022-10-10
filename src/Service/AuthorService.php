@@ -2,30 +2,30 @@
 
 namespace App\Service;
 
+use App\Exception\AuthorNotFoundException;
 use App\Model\AuthorItemResponse;
 use App\Model\AuthorListResponse;
+use App\Model\BookItem;
 use App\Repository\AuthorRepository;
 
 class AuthorService
 {
-    public function __construct(private AuthorRepository $authorRepository)
-    {
+    public function __construct(
+        private readonly AuthorRepository $authorRepository
+    ) {
     }
 
     public function getAuthor(int $id): array
     {
         if ( ! $this->authorRepository->isExistBy(['id' => $id])) {
-            return ['success' => false, 'error' => 'author doesn\'t exist'];
+            throw new AuthorNotFoundException();
         }
 
         $author = $this->authorRepository->findOneBy(['id' => $id]);
         $books  = array();
         foreach ($author->getBooks() as $book) {
-            $books[] = [
-                'id'    => $book->getId(),
-                'title' => $book->getTitle(),
-                'year'  => $book->getYear()
-            ];
+            $books[] = (new BookItem($book->getId(), $book->getTitle(),
+                $book->getYear()))->serialize();
         }
 
         return (new AuthorItemResponse(
@@ -44,18 +44,15 @@ class AuthorService
                 and $author->getBooksNumber()
                     <= ($toBooks ?? $author->getBooksNumber())
             ) {
-                $booksArray = array();
+                $books = array();
                 foreach ($author->getBooks() as $book) {
-                    $booksArray[] = [
-                        'id'    => $book->getId(),
-                        'title' => $book->getTitle(),
-                        'year'  => $book->getYear()
-                    ];
+                    $books[] = (new BookItem($book->getId(), $book->getTitle(),
+                        $book->getYear()))->serialize();
                 }
                 $authorsArray[] = (new AuthorItemResponse(
                     $author->getId(),
                     $author->getName(),
-                    $booksArray,
+                    $books,
                     $author->getBooksNumber()))->serialize();
             }
         }
