@@ -6,22 +6,16 @@ class BookItem
 {
     private int $id;
     private string $title;
-    private string $description;
     private int $year;
-    private string $image;
 
     public function __construct(
         int $id,
         string $title,
-        string $description,
-        int $year,
-        string $image = '',
+        int $year
     ) {
-        $this->id = $id;
+        $this->id    = $id;
         $this->title = $title;
-        $this->description = $description;
-        $this->year = $year;
-        $this->image = $image;
+        $this->year  = $year;
     }
 
     public function getId(): int
@@ -34,18 +28,17 @@ class BookItem
         return $this->title;
     }
 
-    public function getDescription(): string
-    {
-        return $this->description;
-    }
-
     public function getYear(): int
     {
         return $this->year;
     }
 
-    public function getImage(): string
+    public function serialize(): array
     {
-        return $this->image;
+        return [
+            'id' => $this->getId(),
+            'title' => $this->getTitle(),
+            'year' => $this->getYear()
+        ];
     }
 }

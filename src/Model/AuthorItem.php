@@ -6,13 +6,13 @@ class AuthorItem
 {
     private int $id;
     private string $name;
-    private int $books_number;
 
-    public function __construct(int $id, string $name, int $books_number)
-    {
-        $this->id = $id;
+    public function __construct(
+        int $id,
+        string $name,
+    ) {
+        $this->id   = $id;
         $this->name = $name;
-        $this->books_number = $books_number;
     }
 
     public function getId(): int
@@ -25,8 +25,11 @@ class AuthorItem
         return $this->name;
     }
 
-    public function getBooksNumber(): int
+    public function serialize(): array
     {
-        return $this->books_number;
+        return [
+            'id' => $this->getId(),
+            'name' => $this->getName()
+        ];
     }
 }
