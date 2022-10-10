@@ -32,7 +32,7 @@ class AuthorBooksCountListener
     public function preUpdate(PreUpdateEvent $preUpdateEvent): void
     {
         $book = $this->bookRepository->findOneBy(
-            ['title' => $preUpdateEvent->getData()['title']]);
+            ['id' => $preUpdateEvent->getData()['id']]);
 
         $authorsExisted = array();
         foreach ($book->getAuthors() as $author) {
