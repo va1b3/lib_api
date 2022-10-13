@@ -6,7 +6,9 @@ use App\Model\BookItemResponse;
 use App\Model\BookListResponse;
 use App\Model\ErrorResponse;
 use App\Service\BookService;
+use Doctrine\DBAL\Exception;
 use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Security;
 use OpenApi\Annotations as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -23,7 +25,7 @@ class BookController extends AbstractController
     /**
      * @OA\Response(
      *     response=200,
-     *     description="Returns 200: book was added successfully",
+     *     description="Returns 200: book added successfully",
      *     content={
      *         @OA\MediaType(
      *             mediaType="application/json",
@@ -104,7 +106,7 @@ class BookController extends AbstractController
     /**
      * @OA\Response(
      *     response=200,
-     *     description="Returns 200: book was updated successfully",
+     *     description="Returns 200: book updated successfully",
      *     content={
      *         @OA\MediaType(
      *             mediaType="application/json",
@@ -121,6 +123,16 @@ class BookController extends AbstractController
      * @OA\Response(
      *     response=400,
      *     description="Returns 400: book fields error",
+     *     @Model(type=ErrorResponse::class)
+     * )
+     * @OA\Response(
+     *     response=401,
+     *     description="Returns 401: invalid JWT token",
+     *     @Model(type=ErrorResponse::class)
+     * )
+     * @OA\Response(
+     *     response=403,
+     *     description="Returns 403: forbidden",
      *     @Model(type=ErrorResponse::class)
      * )
      * @OA\Response(
@@ -179,6 +191,7 @@ class BookController extends AbstractController
      *         )
      *     }
      * )
+     * @Security(name="Bearer")
      */
     #[Route(path: '/api/v1/update', methods: ['PATCH'])]
     public function updateBook(Request $request): Response
@@ -190,7 +203,7 @@ class BookController extends AbstractController
     /**
      * @OA\Response(
      *     response=200,
-     *     description="Returns 200: book was deleted successfully",
+     *     description="Returns 200: book deleted successfully",
      *     content={
      *         @OA\MediaType(
      *             mediaType="application/json",
@@ -205,6 +218,16 @@ class BookController extends AbstractController
      *     }
      * )
      * @OA\Response(
+     *     response=401,
+     *     description="Returns 401: invalid JWT token",
+     *     @Model(type=ErrorResponse::class)
+     * )
+     * @OA\Response(
+     *     response=403,
+     *     description="Returns 403: forbidden",
+     *     @Model(type=ErrorResponse::class)
+     * )
+     * @OA\Response(
      *     response=404,
      *     description="Returns 404: book not found",
      *     @Model(type=ErrorResponse::class)
@@ -214,6 +237,7 @@ class BookController extends AbstractController
      *     description="Returns 500: processing error",
      *     @Model(type=ErrorResponse::class)
      * )
+     * @Security(name="Bearer")
      */
     #[Route(path: '/api/v1/delete/{id}', methods: ['DELETE'])]
     public function deleteBook(int $id): Response
@@ -247,25 +271,25 @@ class BookController extends AbstractController
     /**
      * @OA\Parameter(
      *     name="from_authors",
-     *     description="filter from book authors amount",
+     *     description="filter from authors amount",
      *     required=false,
      *     in="query"
      * )
      * @OA\Parameter(
      *     name="to_authors",
-     *     description="filter to book authors amount",
+     *     description="filter to authors amount",
      *     required=false,
      *     in="query"
      * )
      * @OA\Parameter(
      *     name="from_year",
-     *     description="filter from book year",
+     *     description="filter from year",
      *     required=false,
      *     in="query"
      * )
      * @OA\Parameter(
      *     name="to_year",
-     *     description="filter to book year",
+     *     description="filter to year",
      *     required=false,
      *     in="query"
      * )
@@ -293,7 +317,7 @@ class BookController extends AbstractController
     /**
      * @OA\Response(
      *     response=200,
-     *     description="Returns 200: books list response",
+     *     description="Returns 200: books list response with more than two authors by DQB",
      *     @Model(type=BookListResponse::class)
      * )
      * @OA\Response(
@@ -311,7 +335,7 @@ class BookController extends AbstractController
     /**
      * @OA\Response(
      *     response=200,
-     *     description="Returns 200: books list response",
+     *     description="Returns 200: books list response with more than two authors by SQL",
      *     @Model(type=BookListResponse::class)
      * )
      * @OA\Response(
@@ -319,6 +343,7 @@ class BookController extends AbstractController
      *     description="Returns 500: processing error",
      *     @Model(type=ErrorResponse::class)
      * )
+     * @throws Exception
      */
     #[Route(path: '/api/v1/get-books-list-authors-filter-sql', methods: ['GET'])]
     public function getListBookAuthorsFilterSql(): JsonResponse
