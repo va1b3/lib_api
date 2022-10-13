@@ -25,7 +25,7 @@ class Book
     #[ORM\JoinTable(name: "books_authors")]
     private Collection $authors;
 
-    #[ORM\Column(type: "string")]
+    #[ORM\Column(type: "string", length: 65535)]
     private string $description;
 
     #[ORM\Column(type: "integer")]
