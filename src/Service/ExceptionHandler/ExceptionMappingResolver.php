@@ -16,7 +16,7 @@ class ExceptionMappingResolver
         foreach ($mappings as $class => $mapping) {
             if (empty($mapping['code'])) {
                 throw new InvalidArgumentException(
-                    'code is required for class' . $class);
+                    'Code is required for class ' . $class);
             }
 
             $this->addMapping(
