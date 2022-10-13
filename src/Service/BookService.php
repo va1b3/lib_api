@@ -8,7 +8,7 @@ use App\Event\PreAddEvent;
 use App\Event\PreDeleteEvent;
 use App\Event\PreUpdateEvent;
 use App\Exception\BookAlreadyExistException;
-use App\Exception\BookFieldsErrorException;
+use App\Exception\FieldsErrorException;
 use App\Exception\BookNotFoundException;
 use App\Model\AuthorItem;
 use App\Model\BookItemResponse;
@@ -38,7 +38,7 @@ class BookService
             $description = $data['description'];
             $year        = $data['year'];
         } catch (Exception $exception) {
-            throw new BookFieldsErrorException();
+            throw new FieldsErrorException();
         }
 
         if ($this->bookRepository->isExistBy(['title' => $title])) {
@@ -90,7 +90,7 @@ class BookService
             $description = $data['description'];
             $year        = $data['year'];
         } catch (Exception $exception) {
-            throw new BookFieldsErrorException();
+            throw new FieldsErrorException();
         }
 
         if ( ! $this->bookRepository->isExistBy(['id' => $id])) {
