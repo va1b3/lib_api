@@ -23,7 +23,9 @@ class ApiExceptionListener
         $throwable = $event->getThrowable();
         $mapping   = $this->resolver->resolve(get_class($throwable));
         if ($mapping === null) {
-            $mapping = ExceptionMapping::fromCode(Response::HTTP_INTERNAL_SERVER_ERROR);
+            $code    = $throwable->getCode() > 0 ? $throwable->getCode()
+                : Response::HTTP_INTERNAL_SERVER_ERROR;
+            $mapping = ExceptionMapping::fromCode($code);
         }
 
         if ($mapping->getCode() >= Response::HTTP_INTERNAL_SERVER_ERROR
@@ -36,12 +38,13 @@ class ApiExceptionListener
             ]);
         }
 
-        $message  = $mapping->isHidden()
+        $message = $mapping->isHidden()
             ? Response::$statusTexts[$mapping->getCode()]
             : $throwable->getMessage();
-        $data     = (new ErrorResponse($message))->serialize();
-        $response = new JsonResponse($data, $mapping->getCode(), [], false);
+        $data    = (new ErrorResponse($mapping->getCode(),
+            $message))->serialize();
 
-        $event->setResponse($response);
+        $event->setResponse(new JsonResponse($data, $mapping->getCode(), [],
+            false));
     }
 }
