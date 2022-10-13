@@ -7,6 +7,6 @@ use RuntimeException;
 class AuthorNotFoundException extends RuntimeException
 {
     public function __construct() {
-        parent::__construct('author not found');
+        parent::__construct('Author not found');
     }
 }

@@ -7,6 +7,6 @@ use RuntimeException;
 class BookAlreadyExistException extends RuntimeException
 {
     public function __construct() {
-        parent::__construct('book already exist');
+        parent::__construct('Book already exist');
     }
 }

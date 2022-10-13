@@ -4,9 +4,9 @@ namespace App\Exception;
 
 use RuntimeException;
 
-class BookNotFoundException extends RuntimeException
+class UserNotFoundException extends RuntimeException
 {
     public function __construct() {
-        parent::__construct('Book not found');
+        parent::__construct('User not found');
     }
 }
