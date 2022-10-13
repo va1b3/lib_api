@@ -41,6 +41,10 @@ class BookService
             throw new FieldsErrorException();
         }
 
+        if ( ! $this->fieldsValidation($title, $authors, $description, $year)) {
+            throw new FieldsErrorException();
+        }
+
         if ($this->bookRepository->isExistBy(['title' => $title])) {
             throw new BookAlreadyExistException();
         }
@@ -81,15 +85,35 @@ class BookService
         return $authorsCollection;
     }
 
+    private function fieldsValidation(
+        string $title,
+        array $authors,
+        string $description,
+        int $year
+    ): bool {
+        if (strlen($title) > 0
+            and count($authors) > 0
+                and strlen($description) > 0
+                    and $year > 0) {
+            return true;
+        }
+        return false;
+    }
+
     public function update(array $data): array
     {
         try {
-            $id          = $data['id'];
+            $id          = (int) $data['id'];
             $title       = $data['title'];
             $authors     = $data['authors'];
             $description = $data['description'];
             $year        = $data['year'];
         } catch (Exception $exception) {
+            throw new FieldsErrorException();
+        }
+
+        if ( ! $this->fieldsValidation($title, $authors, $description, $year)
+             or $id <= 0) {
             throw new FieldsErrorException();
         }
 
