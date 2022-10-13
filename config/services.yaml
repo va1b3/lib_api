@@ -4,6 +4,14 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    exceptions:
+        App\Exception\FieldsErrorException: { code: 400, hidden: false, loggable: false }
+        App\Exception\LoginFailedException: { code: 401, hidden: false, loggable: false }
+        App\Exception\UserNotFoundException: { code: 404, hidden: false, loggable: false }
+        App\Exception\BookNotFoundException: { code: 404, hidden: false, loggable: false }
+        App\Exception\AuthorNotFoundException: { code: 404, hidden: false, loggable: false }
+        App\Exception\BookAlreadyExistException: { code: 409, hidden: false, loggable: false }
+        App\Exception\UserAlreadyExistException: { code: 409, hidden: false, loggable: false }
 
 services:
     # default configuration for services in *this* file
@@ -22,3 +30,16 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    App\Service\ExceptionHandler\ExceptionMappingResolver:
+        arguments: ['%exceptions%']
+
+    App\EventListener\AuthorBooksCountListener:
+        tags:
+            - { name: 'kernel.event_listener', event: 'preAdd', method: 'preAdd' }
+            - { name: 'kernel.event_listener', event: 'preUpdate', method: 'preUpdate' }
+            - { name: 'kernel.event_listener', event: 'preDelete', method: 'preDelete' }
+
+    App\EventListener\ApiExceptionListener:
+        tags:
+            - { name: 'kernel.event_listener', event: 'kernel.exception', priority: 10 }
