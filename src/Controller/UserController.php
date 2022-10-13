@@ -103,6 +103,11 @@ class UserController extends AbstractController
      *     @Model(type=ErrorResponse::class)
      * )
      * @OA\Response(
+     *     response=401,
+     *     description="Returns 401: invalid credentials",
+     *     @Model(type=ErrorResponse::class)
+     * )
+     * @OA\Response(
      *     response=409,
      *     description="Returns 409: user already exist",
      *     @Model(type=ErrorResponse::class)
