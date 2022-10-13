@@ -4,17 +4,23 @@ namespace App\Model;
 
 class ErrorResponse
 {
-    public function __construct(private string $error)
-    {
+    public function __construct(private readonly string $code,
+                                private readonly string $message
+    ) {
     }
 
-    public function getError(): string
+    public function getCode(): string
     {
-        return $this->error;
+        return $this->code;
+    }
+
+    public function getMessage(): string
+    {
+        return $this->message;
     }
 
     public function serialize(): array
     {
-        return ['error' => $this->error];
+        return ['code' => $this->getCode(), 'message' => $this->getMessage()];
     }
 }
